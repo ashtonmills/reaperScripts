@@ -1,9 +1,10 @@
 --Create region around selected items
 --Lua script for Reaper
 --Author : BioMannequin (Ashton Mills)
---Version: 1.1
+--Version: 1.2
 --Version Date : 29.05.20
 
+--Prompts for how much space in milliseconds you want to leave before the first and after the last items.
 --If items are selected, creates a region that starts at the earlist start point of all selected regions, and ends and the latest point of
 --all selected regions. In short, it creates a single region around all the items you have selected. 
 
@@ -56,6 +57,33 @@ end
 
 --Main Body
 fillArrays();
-regStart = getEarliestStartPoint();
-regEnd = getLatestEndPoint();
+rv, rv_str = reaper.GetUserInputs("Head and tail length in milliseconds", 2, "Time before first item ,Time after last item","" );
+bfr, aftr = rv_str:match("([^,]+),([^,]+)");
+
+bfrValid = tonumber(bfr) ~= nil;
+
+if (bfrValid==false)
+then 
+  bfr = 0;
+else 
+  bfr = bfr/1000;
+end
+
+aftrValid = tonumber(aftr) ~= nil;
+
+if (aftrValid==false)
+then 
+  aftr = 0;
+else 
+  aftr = aftr/1000;
+end
+
+
+regStart = getEarliestStartPoint() - bfr;
+if(regStart < 0)
+then
+  regStart=0;
+end
+regEnd = getLatestEndPoint() + aftr;
+
 createRegion(regStart,regEnd);
